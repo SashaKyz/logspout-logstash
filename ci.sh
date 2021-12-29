@@ -15,7 +15,11 @@ function main {
 
   for t in ${TAGS}; do
     # Fetch the relevant build.sh
-    curl -s --retry 3 -O "https://raw.githubusercontent.com/gliderlabs/logspout/$t/custom/build.sh"
+    if [ $t == 'latest' ] ; then
+       curl -s --retry 3 -O "https://raw.githubusercontent.com/gliderlabs/logspout/release/custom/build.sh"
+    else
+       curl -s --retry 3 -O "https://raw.githubusercontent.com/gliderlabs/logspout/$t/custom/build.sh"
+    fi
 
     docker build -t $HUB_REPO:$t --build-arg UPSTREAM_VERSION=$t .
     if [ $? -ne 0 ] ; then
