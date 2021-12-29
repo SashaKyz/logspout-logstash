@@ -6,10 +6,10 @@
 #   3. Push all tags.
 
 
-HUB_REPO="${DOCKER_REPO:-bekt/logspout-logstash}"
+HUB_REPO="${DOCKER_REPO:-cwds/logspout-logstash}"
 
 function main {
-  TAGS=$(curl -s --retry 5 "https://hub.docker.com/v2/repositories/gliderlabs/logspout/tags/?page_size=50" \
+  TAGS=$(curl -s --retry 5 "https://hub.docker.com/v2/repositories/gliderlabs/logspout/tags/?page_size=5" \
       | jq -r '.results|.[].name')
   echo "Upstream tags: $TAGS"
 
@@ -17,7 +17,7 @@ function main {
     # Fetch the relevant build.sh
     curl -s --retry 3 -O "https://raw.githubusercontent.com/gliderlabs/logspout/$t/custom/build.sh"
 
-    docker build -t $HUB_REPO:ignore-$t --build-arg UPSTREAM_VERSION=$t .
+    docker build -t $HUB_REPO:$t --build-arg UPSTREAM_VERSION=$t .
     if [ $? -ne 0 ] ; then
       echo "ERROR: failed to build $t"
     fi
@@ -25,7 +25,7 @@ function main {
   done
 
   for t in ${TAGS}; do
-    docker push $HUB_REPO:ignore-$t
+    docker push $HUB_REPO:$t
     if [ $? -ne 0 ] ; then
       echo "ERROR: failed to push $t"
     fi
